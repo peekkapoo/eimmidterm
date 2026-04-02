@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EIM – Phân tích chuyên sâu 47 câu TN</title>
+<style>
+:root {
+  --teal:#1D9E75;--teal-l:#E1F5EE;--teal-d:#085041;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --coral:#D85A30;--coral-l:#FAECE7;--coral-d:#4A1B0C;
+  --blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#042C53;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#26215C;
+  --red:#A32D2D;--red-l:#FCEBEB;
+  --gray:#5F5E5A;--gray-l:#F1EFE8;--gray-b:#D3D1C7;
+  --green:#3B6D11;--green-l:#EAF3DE;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.65;background:#f5f4f0;color:#2C2C2A}
+header{background:var(--teal-d);color:#E1F5EE;padding:2rem 2rem 1.5rem}
+header h1{font-size:20px;font-weight:700;margin-bottom:4px}
+header p{font-size:12px;opacity:.8}
+.sticky-bar{position:sticky;top:0;z-index:20;background:white;border-bottom:1px solid var(--gray-b);padding:.75rem 2rem;display:flex;align-items:center;gap:12px}
+.sticky-bar span{font-size:12px;color:var(--gray)}
+.btn{border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-teal{background:var(--teal-d);color:#E1F5EE}
+.btn-purple{background:var(--purple-d);color:#EEEDFE;margin-left:auto}
+.ch-label{display:inline-block;background:var(--teal-d);color:#E1F5EE;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;margin:1.5rem 2rem .5rem}
+.qs{padding:0 2rem 1rem;display:flex;flex-direction:column;gap:8px}
+.card{background:white;border:1px solid var(--gray-b);border-radius:10px;overflow:hidden}
+.card-head{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;cursor:pointer}
+.card-head:hover{background:var(--gray-l)}
+.qnum{background:var(--teal-d);color:white;border-radius:50%;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.qtxt{flex:1;font-size:13.5px;font-weight:500}
+.ans-badge{background:var(--teal-l);color:var(--teal-d);border-radius:6px;padding:2px 10px;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.toggle{font-size:18px;color:var(--gray);margin-left:6px;flex-shrink:0;padding-top:2px}
+.card-body{display:none;border-top:1px solid var(--gray-b)}
+.card-body.open{display:block}
+.opts{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid transparent}
+.opt.correct{border-color:#9FE1CB}
+.opt.wrong{border-color:#F7C1C1;background:#fef8f8}
+.opt-label{font-weight:700;min-width:32px;padding:8px 10px;font-size:12px;flex-shrink:0}
+.opt.correct .opt-label{background:var(--teal-l);color:var(--teal-d)}
+.opt.wrong .opt-label{background:#F7C1C1;color:var(--red)}
+.opt-content{flex:1;padding:7px 10px}
+.opt-text{font-size:13px;color:#2C2C2A;margin-bottom:2px}
+.opt.correct .opt-text{font-weight:600;color:var(--teal-d)}
+.why-wrong{font-size:11.5px;color:var(--red);font-style:italic}
+.why-correct{font-size:11.5px;color:var(--teal-d)}
+.explanation{background:var(--amber-l);border-top:1px solid #FAC775;padding:10px 14px;font-size:13px}
+.explanation strong{color:var(--amber-d)}
+/* Knowledge Sections */
+.kb-section{margin:1.5rem 2rem;background:white;border:1px solid var(--gray-b);border-radius:12px;overflow:hidden}
+.kb-head{background:var(--purple-d);color:#EEEDFE;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.kb-body{display:none;padding:16px}
+.kb-body.open{display:block}
+.kb-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0}
+.kb-table th{background:var(--teal-d);color:#E1F5EE;padding:8px 10px;text-align:left;font-weight:600}
+.kb-table td{padding:7px 10px;border-bottom:1px solid var(--gray-b);vertical-align:top}
+.kb-table tr:last-child td{border-bottom:none}
+.kb-table tr:nth-child(even) td{background:var(--gray-l)}
+.kb-rule{background:var(--teal-l);border-left:4px solid var(--teal);padding:10px 14px;margin:8px 0;border-radius:0 8px 8px 0;font-size:13px}
+.kb-rule strong{color:var(--teal-d)}
+.kb-warn{background:var(--coral-l);border-left:4px solid var(--coral);padding:10px 14px;margin:8px 0;border-radius:0 8px 8px 0;font-size:13px}
+.kb-warn strong{color:var(--coral-d)}
+.kb-note{background:var(--amber-l);border-left:4px solid var(--amber);padding:10px 14px;margin:8px 0;border-radius:0 8px 8px 0;font-size:13px}
+.kb-note strong{color:var(--amber-d)}
+.tag-c{display:inline-block;background:var(--teal-l);color:var(--teal-d);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-left:4px}
+.tag-w{display:inline-block;background:var(--coral-l);color:var(--coral-d);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-left:4px}
+.tag-n{display:inline-block;background:var(--amber-l);color:var(--amber-d);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-left:4px}
+h4{font-size:13px;font-weight:700;color:var(--purple-d);margin:12px 0 6px;border-bottom:1px solid var(--purple-l);padding-bottom:4px}
+footer{text-align:center;padding:2rem;font-size:12px;color:var(--gray)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Export-Import Management — Phân tích chuyên sâu 47 câu TN</h1>
+  <p>Đáp án đúng + Giải thích tại sao các đáp án khác SAI + Tổng hợp kiến thức chuyên sâu</p>
+</header>
+
+<div class="sticky-bar">
+  <span>Click từng câu để xem phân tích</span>
+  <button class="btn btn-teal" id="btn-q" onclick="toggleAll('q')">Mở tất cả câu hỏi</button>
+  <button class="btn btn-purple" id="btn-k" onclick="toggleAll('k')">Mở tất cả kiến thức</button>
+</div>
+
+<div id="main"></div>
+
+<!-- ============ KNOWLEDGE BASE ============ -->
+<div style="padding:0 2rem .5rem;margin-top:1rem">
+  <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);font-weight:600">★ TỔNG HỢP KIẾN THỨC CHUYÊN SÂU</span>
+</div>
+
+<!-- KB 1 -->
+<div class="kb-section" data-kb>
+  <div class="kb-head" onclick="toggleKB(this)">① Hợp đồng Gia công — Thuế, Quyền lợi & Nghĩa vụ toàn diện <span>+</span></div>
+  <div class="kb-body">
+    <h4>Bảng tổng hợp THUẾ trong gia công xuất khẩu</h4>
+    <table class="kb-table">
+      <tr><th>Loại hàng</th><th>Thuế nhập khẩu</th><th>Thuế xuất khẩu</th><th>Lý do</th></tr>
+      <tr><td>Nguyên liệu <strong>tạm nhập</strong> từ Processee</td><td>Miễn</td><td>N/A (tái xuất cùng thành phẩm)</td><td>Chỉ vào VN tạm thời, không tiêu thụ nội địa → tạm nhập tái xuất</td></tr>
+      <tr><td>Nguyên liệu <strong>mua nội địa</strong></td><td>N/A (mua trong nước)</td><td>Phải nộp</td><td>Đưa vào thành phẩm → thực chất là xuất khẩu nguyên liệu nội địa</td></tr>
+      <tr><td>Máy móc thiết bị tạm nhập/mượn</td><td>Miễn</td><td>Miễn</td><td>Tạm nhập → trả lại Processee sau khi kết thúc HĐ</td></tr>
+      <tr><td><strong>Thành phẩm gia công</strong></td><td>N/A</td><td>Miễn</td><td>Là sản phẩm chính của hợp đồng gia công, được miễn hoàn toàn</td></tr>
+      <tr><td>Thù lao nhận bằng thành phẩm</td><td>Phải tuân thủ quy định nhập khẩu</td><td>N/A</td><td>Thành phẩm vào VN = nhập khẩu → phải xin phép nếu trong danh mục</td></tr>
+    </table>
+    <div class="kb-warn"><strong>Bẫy hay gặp:</strong> Câu hỏi nói "domestically purchased" → thuế XUẤT khẩu. Câu nói "temporarily imported" → miễn thuế NHẬP khẩu. Đừng nhầm chiều!</div>
+    <h4>5 cách xử lý nguyên vật liệu dư thừa (Excess materials)</h4>
+    <table class="kb-table">
+      <tr><th>#</th><th>Cách xử lý</th><th>Lưu ý</th></tr>
+      <tr><td>1</td><td>Bán tại VN (Sold in Vietnam)</td><td>Phải đóng thuế nhập khẩu khi bán nội địa</td></tr>
+      <tr><td>2</td><td>Tái xuất ra nước ngoài (Re-exported abroad)</td><td>Đơn giản nhất, được ưu tiên</td></tr>
+      <tr><td>3</td><td>Dùng cho HĐ gia công khác tại VN</td><td>Cần có HĐ gia công mới hợp lệ</td></tr>
+      <tr><td>4</td><td>Biếu tặng/từ thiện tại VN</td><td>Do Processee chỉ định hoặc đồng ý</td></tr>
+      <tr><td>5</td><td>Tiêu hủy tại VN (Destroyed in Vietnam)</td><td>Có hải quan giám sát</td></tr>
+    </table>
+    <h4>Phân loại gia công theo nghĩa vụ Processor (thường thi)</h4>
+    <div class="kb-rule"><strong>CM</strong> = Cutting + Making | <strong>CMP</strong> = + Packaging | <strong>CMT</strong> = + Trimming (hoàn tất) | <strong>CMA</strong> = + Accessories (phụ kiện) | <strong>CMT+Th</strong> = + Thread (chỉ) | Processor mua càng nhiều → mức độ gia công càng cao → tiến gần OEM</div>
+    <h4>Quy trình thanh lý HĐ gia công khi hết hiệu lực</h4>
+    <div class="kb-note"><strong>Khi HĐ gia công kết thúc:</strong> Hai bên phải (1) Thanh lý hợp đồng, (2) Gửi cho Hải quan bảng quyết toán sử dụng <strong>NGUYÊN VẬT LIỆU</strong> và thành phẩm xuất khẩu. Không phải consumption rate, không phải máy móc thiết bị.</div>
+    <h4>Quyền sở hữu nhãn hiệu trong gia công</h4>
+    <table class="kb-table">
+      <tr><th>Hình thức</th><th>Chủ nhãn hiệu</th></tr>
+      <tr><td>CMPT, FOB/OEM, ODM</td><td>PROCESSEE (bên đặt gia công)</td></tr>
+      <tr><td>OBM</td><td>PROCESSOR (bên nhận gia công — trở thành real exporter)</td></tr>
+    </table>
+    <div class="kb-warn"><strong>OBM:</strong> Processor có thương hiệu riêng, tự thiết kế, tự mua nguyên liệu, tự bán → KHÔNG còn mối quan hệ Processor–Processee nữa!</div>
+  </div>
+</div>
+
+<!-- KB 2 -->
+<div class="kb-section" data-kb>
+  <div class="kb-head" onclick="toggleKB(this)">② Hợp đồng NK Thiết bị Toàn bộ — Điều khoản đặc trưng & Art.10 chi tiết <span>+</span></div>
+  <div class="kb-body">
+    <h4>6 Điều khoản ĐẶC TRƯNG (chỉ có trong NK thiết bị toàn bộ)</h4>
+    <div class="kb-rule"><strong>1. Definitions</strong> — Giải thích các thuật ngữ kỹ thuật phức tạp trong HĐ<br>
+    <strong>2. Price</strong> — Breakdown price (Production line + Installation + Commissioning fee)<br>
+    <strong>3. Inspection</strong> — Phân chia trách nhiệm + Tổ chức kiểm định + Địa điểm cuối cùng (CHỈ 3 NỘI DUNG)<br>
+    <strong>4. Technical Documents (Art.8)</strong> — Kinds + Language + Standard + Seller obligation + Buyer: confidential & owner<br>
+    <strong>5. Technical Support (Art.9)</strong> — Kinds + Seller experts: Number/Background/Duties/Working regulation/Expenses/Replacement<br>
+    <strong>6. Art.10</strong> — Erection → Test run → Commissioning → Performance test → Acceptance</div>
+    <div class="kb-warn"><strong>Dễ nhầm:</strong> Technical Documents cần "Standard" (tiêu chuẩn kỹ thuật), KHÔNG phải "Issuers" hay "Number of originals". Technical Support cần "Expenses", KHÔNG phải "Experience" hay "Health" hay "Language".</div>
+    
+    <h4>Art.10 — Thứ tự các bước chi tiết</h4>
+    <table class="kb-table">
+      <tr><th>Bước</th><th>Tên tiếng Anh</th><th>Cần chuẩn bị</th><th>Ghi chú</th></tr>
+      <tr><td>1</td><td>Erection (Installation)</td><td>Chuyên gia Seller + Công nhân Buyer</td><td>Lắp đặt dây chuyền</td></tr>
+      <tr><td>2</td><td>Test run (No load test)</td><td>Kỹ thuật viên</td><td>Chạy thử KHÔNG có tải (không cần nguyên liệu)</td></tr>
+      <tr><td>3</td><td>Commissioning (Load test)</td><td><strong>Raw materials + Workers</strong></td><td>Chạy thử CÓ tải — so sánh actual vs contract specs</td></tr>
+      <tr><td>4</td><td><strong>Performance test</strong></td><td>Kiểm tra chỉ tiêu chất lượng</td><td><strong>Bước thứ 4</strong>, trong laboratory của Buyer</td></tr>
+      <tr><td>5</td><td>Acceptance</td><td>Biên bản nghiệm thu</td><td>Bước CUỐI — Seller giao, Buyer nhận chính thức</td></tr>
+    </table>
+    <div class="kb-warn"><strong>Nếu Commissioning THẤT BẠI:</strong> Bước ĐẦU TIÊN là điều tra xem lỗi của bên nào → sau đó bên có lỗi mới chịu trách nhiệm sửa chữa. KHÔNG được tự ý đổ lỗi cho Seller hay bắt cả hai cùng sửa ngay!</div>
+
+    <h4>Bank Guarantee trong thanh toán</h4>
+    <table class="kb-table">
+      <tr><th>Kỳ thanh toán</th><th>Ai phát hành guarantee</th><th>Bảo vệ khỏi rủi ro</th></tr>
+      <tr><td><strong>Kỳ ĐẦU (Down payment)</strong></td><td>Seller's bank</td><td>Seller nhận tiền nhưng <strong>không giao hàng đúng hạn</strong></td></tr>
+      <tr><td>Kỳ giữa</td><td>Thay đổi theo từng HĐ</td><td>Rủi ro từng giai đoạn</td></tr>
+      <tr><td><strong>Kỳ CUỐI (Last payment)</strong></td><td>Seller's bank</td><td>Dây chuyền hỏng nhưng <strong>Seller không sửa/bảo hành</strong></td></tr>
+    </table>
+    <div class="kb-note"><strong>Logic nhớ:</strong> Kỳ đầu = Buyer chưa có gì → sợ Seller "ôm tiền bỏ chạy". Kỳ cuối = Buyer đã có hàng → sợ Seller "nhận tiền xong bỏ mặc khi hỏng".</div>
+
+    <h4>Breakdown Price (Giá phân tích)</h4>
+    <div class="kb-rule">Giá = <strong>Production line value</strong> + <strong>Installation fee</strong> + <strong>Commissioning fee</strong><br>
+    Giá từng máy móc đơn lẻ ghi trong <strong>Appendix</strong> (Phụ lục), không nằm trong điều khoản chính</div>
+  </div>
+</div>
+
+<!-- KB 3 -->
+<div class="kb-section" data-kb>
+  <div class="kb-head" onclick="toggleKB(this)">③ Hợp đồng CGCN & License — So sánh và các điều khoản dễ nhầm <span>+</span></div>
+  <div class="kb-body">
+    <h4>So sánh Technology Transfer vs License Contract</h4>
+    <table class="kb-table">
+      <tr><th>Tiêu chí</th><th>Technology Transfer</th><th>License Contract</th></tr>
+      <tr><td>Bên giao</td><td>Transferor</td><td>Licensor</td></tr>
+      <tr><td>Bên nhận</td><td>Transferee</td><td>Licensee</td></tr>
+      <tr><td>Đối tượng chính</td><td>Bí quyết, quy trình, phần mềm, phần cứng</td><td>Bằng sáng chế (patent), know-how, nhãn hiệu</td></tr>
+      <tr><td>Chủ sở hữu sau HĐ</td><td>Chuyển quyền sở hữu hoặc sử dụng</td><td>Licensor vẫn là chủ; Licensee chỉ được quyền sử dụng</td></tr>
+      <tr><td>Sản lượng giới hạn</td><td>Không thường thấy</td><td>Có — giới hạn LICENSEE</td></tr>
+      <tr><td>Duy trì patent</td><td>Không áp dụng trực tiếp</td><td>LICENSOR (chủ patent) phải nộp phí gia hạn định kỳ</td></tr>
+      <tr><td>Sub-license</td><td>No assignment (không chuyển nhượng)</td><td>Licensee CÓ THỂ sub-license cho bên thứ 3</td></tr>
+    </table>
+
+    <h4>Các điều khoản đặc trưng CGCN — Nội dung chi tiết</h4>
+    <table class="kb-table">
+      <tr><th>Điều khoản</th><th>Nội dung</th><th>Lưu ý dễ nhầm</th></tr>
+      <tr><td><strong>Patent Right (Quyền sở hữu sáng chế)</strong></td><td>① Transferor là chủ công nghệ (ownership right) ② Quyền định đoạt (disposal right) ③ Transferor giải quyết claim bên thứ 3 ④ Transferee HỖ TRỢ giải quyết claim</td><td>Bảo mật (confidential) = Art.15 RIÊNG — KHÔNG thuộc patent right</td></tr>
+      <tr><td><strong>Improvements & Innovations (Art.10)</strong></td><td>Mỗi bên có nghĩa vụ thông báo cải tiến cho bên kia</td><td>"Transferee's right to inform improvements" thuộc Art.10, không phải patent right</td></tr>
+      <tr><td><strong>Periodic payment</strong></td><td>Do TRANSFEREE tính toán (họ có dữ liệu doanh thu)</td><td>Transferor hoặc auditor độc lập có quyền kiểm tra</td></tr>
+      <tr><td><strong>Performance Security</strong></td><td>Bước CUỐI khi seller & buyer commissioning. Transferor ký quỹ 10% tại ngân hàng của Transferee's country</td><td>Hiệu lực: từ ngày ký HĐ đến hết thời hạn bảo hành</td></tr>
+    </table>
+
+    <h4>3 loại công nghệ theo Luật CGCN 2017</h4>
+    <div class="kb-rule">
+      <strong>Encouraged (Khuyến khích)</strong>: Công nghệ mới, sạch, tiết kiệm năng lượng → được ưu đãi thuế, hỗ trợ ngân sách<br>
+      <strong>Restricted (Hạn chế)</strong>: Cần kiểm soát — phải xin Giấy phép CGCN, đáp ứng điều kiện nhất định<br>
+      <strong>Prohibited (Cấm)</strong>: Công nghệ lạc hậu, gây ô nhiễm, nguy hiểm → không được chuyển giao vào VN
+    </div>
+    <div class="kb-warn"><strong>Bẫy hay gặp:</strong> "Improved", "Limited", "Innovated" — những từ này KHÔNG có trong Luật 2017. Chỉ có: Encouraged / Restricted / Prohibited!</div>
+
+    <h4>Sub-licensing — Cơ chế hoạt động</h4>
+    <div class="kb-rule">Licensor A → cấp license → Licensee B<br>
+    Licensee B → sub-license → Licensee C (bên thứ 3)<br>
+    → B trở thành <em>licensor trung gian</em>, thu royalty từ C rồi trả cho A<br>
+    → A vẫn là chủ sở hữu patent gốc</div>
+  </div>
+</div>
+
+<!-- KB 4 -->
+<div class="kb-section" data-kb>
+  <div class="kb-head" onclick="toggleKB(this)">④ Chứng từ Hải quan — Cấp bởi ai, khi nào, phần mềm nào <span>+</span></div>
+  <div class="kb-body">
+    <h4>Bảng tổng hợp chứng từ hải quan quan trọng</h4>
+    <table class="kb-table">
+      <tr><th>Chứng từ</th><th>Cơ quan cấp</th><th>Thời điểm (Xuất)</th><th>Thời điểm (Nhập)</th><th>Phần mềm/Website</th></tr>
+      <tr><td>Phyto cert (Kiểm dịch TV)</td><td>Cục Bảo vệ Thực vật</td><td>Cùng lúc khai HQ (hàng không trong danh mục)</td><td>TRƯỚC khi thông quan</td><td>PQS (www.kdtv2.com)</td></tr>
+      <tr><td>Vet cert (Kiểm dịch ĐV)</td><td>Cục Thú y (Dept of Animal Health)</td><td>Trước giao hàng</td><td>Trước thông quan</td><td>—</td></tr>
+      <tr><td>Health cert (Thực phẩm)</td><td>BCT + Bộ Y Tế + Bộ NN&PTNT (tùy loại)</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td>C/O ưu đãi</td><td>VCCI hoặc Bộ Công Thương (tùy form)</td><td>Sau khi khai HQ (C/O là chứng từ cuối)</td><td>Nộp khi đăng ký tờ khai NK</td><td>ECOSYS (ecosys.gov.vn)</td></tr>
+      <tr><td>Giấy phép XNK</td><td>Bộ quản lý chuyên ngành tương ứng</td><td>Trước khi xuất</td><td>Trước khi nhập</td><td>—</td></tr>
+    </table>
+
+    <h4>Tiêu chí xuất xứ — Mức độ phức tạp</h4>
+    <table class="kb-table">
+      <tr><th>Tiêu chí</th><th>Tên đầy đủ</th><th>Cách áp dụng</th><th>Độ phức tạp</th></tr>
+      <tr><td>CC</td><td>Change of Chapter</td><td>Chỉ cần thay đổi chương HS (2 số đầu)</td><td>★ Đơn giản nhất</td></tr>
+      <tr><td>CTH</td><td>Change of Tariff Heading</td><td>Thay đổi nhóm HS (4 số đầu)</td><td>★★ Trung bình</td></tr>
+      <tr><td>CTSH</td><td>Change of Tariff Sub-Heading</td><td>Thay đổi phân nhóm HS (6 số đầu)</td><td>★★★ Khá phức tạp</td></tr>
+      <tr><td><strong>RVC</strong></td><td>Regional Value Content</td><td>Tính % giá trị nội khối theo công thức trực tiếp/gián tiếp</td><td><strong>★★★★ Phức tạp nhất</strong></td></tr>
+    </table>
+    <div class="kb-note"><strong>RVC phức tạp nhất vì:</strong> Phải thu thập chi phí nguyên liệu từng nguồn, tính giá FOB, áp dụng công thức toán học. CC chỉ cần nhìn mã HS thay đổi chương là xong.</div>
+
+    <h4>Phyto Certificate — Phân biệt XK vs NK</h4>
+    <table class="kb-table">
+      <tr><th></th><th>Hàng XUẤT khẩu</th><th>Hàng NHẬP khẩu</th></tr>
+      <tr><td>Thời điểm</td><td>Cùng lúc khai tờ khai HQ (nếu không trong danh mục bắt buộc)</td><td>TRƯỚC khi thông quan nhập khẩu</td></tr>
+      <tr><td>Cơ quan</td><td>Cục Bảo vệ Thực vật (xuất khẩu)</td><td>Cơ quan kiểm dịch TV tại cửa khẩu nhập</td></tr>
+      <tr><td>Phần mềm</td><td>PQS — www.kdtv2.com</td><td>PQS — www.kdtv2.com</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- KB 5 -->
+<div class="kb-section" data-kb>
+  <div class="kb-head" onclick="toggleKB(this)">⑤ Điều khoản Thanh toán — So sánh T/T, L/C, CAD và rủi ro từng bên <span>+</span></div>
+  <div class="kb-body">
+    <h4>Rủi ro của các phương thức thanh toán</h4>
+    <table class="kb-table">
+      <tr><th>Phương thức</th><th>Rủi ro cho SELLER (Processor)</th><th>Rủi ro cho BUYER (Processee)</th></tr>
+      <tr><td>T/T (Chuyển tiền)</td><td>Cao — phụ thuộc thiện chí Buyer; không có cam kết NH</td><td>Thấp — chỉ trả khi đã hài lòng</td></tr>
+      <tr><td>D/P (Documentary against Payment)</td><td>Trung bình — Buyer có thể từ chối nhận chứng từ</td><td>Trung bình</td></tr>
+      <tr><td>D/A (Documentary against Acceptance)</td><td>Cao — Buyer nhận hàng nhưng có thể không trả</td><td>Thấp</td></tr>
+      <tr><td><strong>L/C (Documentary Credit)</strong></td><td><strong>Thấp nhất</strong> — có cam kết ngân hàng phát hành</td><td>Trung bình — phụ thuộc chứng từ hợp lệ</td></tr>
+      <tr><td><strong>CAD (Cash Against Documents)</strong></td><td>Thấp — Buyer phải ký quỹ trước</td><td><strong>Cao nhất</strong> — ký quỹ trước khi thấy hàng</td></tr>
+    </table>
+
+    <h4>Nội dung điều khoản thanh toán (so sánh T/T và L/C)</h4>
+    <table class="kb-table">
+      <tr><th>Thông tin cần có</th><th>T/T</th><th>L/C (Documentary Credit)</th></tr>
+      <tr><td>Tên ngân hàng phát hành</td><td>Processor's bank name</td><td>Issuing bank name</td></tr>
+      <tr><td>Tên ngân hàng thông báo</td><td>Không cần</td><td>Advising bank name</td></tr>
+      <tr><td>Số tài khoản</td><td>Bank account number</td><td>Không cần riêng</td></tr>
+      <tr><td>Ngày</td><td>Time of payment (thời điểm TT)</td><td>L/C opening date + L/C expiry date</td></tr>
+      <tr><td>Chứng từ</td><td>Payment documents</td><td>Payment documents</td></tr>
+    </table>
+    <div class="kb-warn"><strong>Payment Documents</strong> chỉ cần: Kinds (loại) + Issuers (cơ quan cấp) + Originals (số bản gốc) + Copies (số bản sao). KHÔNG có exchange rate, bank info, hay payment method!</div>
+
+    <h4>Timeline L/C (thứ tự bắt buộc)</h4>
+    <div class="kb-rule">
+      <strong>(1)</strong> Ký hợp đồng → <strong>(2)</strong> Buyer mở L/C (L/C opening date) → <strong>(3)</strong> Seller giao hàng (shipment date) → <strong>(4)</strong> Seller xuất trình chứng từ (documents presentation) → <strong>(5)</strong> L/C hết hạn (L/C expiry date)
+    </div>
+    <div class="kb-note"><strong>Logic:</strong> Phải giao hàng (3) TRƯỚC khi có B/L → mới lập được bộ chứng từ (4). L/C phải mở (2) trước khi Seller giao hàng. Hợp đồng (1) phải trước tất cả!</div>
+  </div>
+</div>
+
+<!-- KB 6 -->
+<div class="kb-section" data-kb>
+  <div class="kb-head" onclick="toggleKB(this)">⑥ VGM, C/O, PQS — Các chi tiết hay ra thi <span>+</span></div>
+  <div class="kb-body">
+    <h4>VGM (Verified Gross Mass)</h4>
+    <div class="kb-rule"><strong>Định nghĩa:</strong> Khai báo trọng lượng tổng đã được xác minh của container đóng hàng<br>
+    <strong>Ai khai:</strong> SHIPPER (người gửi hàng/người xuất khẩu) — không phải carrier, không phải consignee<br>
+    <strong>Khi nào:</strong> CHỈ khi hàng được đóng vào container — không áp dụng cho bulk cargo hay break-bulk<br>
+    <strong>Pháp lý:</strong> Bắt buộc theo SOLAS Amendment 2016 — tàu không được bốc container chưa có VGM</div>
+
+    <h4>C/O — Các Form thường gặp ở VN</h4>
+    <table class="kb-table">
+      <tr><th>Form</th><th>Thị trường</th><th>Cơ quan cấp</th><th>Hiệp định</th></tr>
+      <tr><td>Form A</td><td>EU, các nước GSP</td><td>VCCI + Bộ Công Thương</td><td>GSP (ưu đãi đơn phương)</td></tr>
+      <tr><td>Form B</td><td>Theo yêu cầu Buyer</td><td>VCCI</td><td>Không ưu đãi</td></tr>
+      <tr><td>Form D</td><td>ASEAN</td><td>Bộ Công Thương</td><td>ATIGA</td></tr>
+      <tr><td>Form E</td><td>Trung Quốc</td><td>Bộ Công Thương</td><td>ACFTA</td></tr>
+      <tr><td>Form AK</td><td>Hàn Quốc</td><td>Bộ Công Thương</td><td>AKFTA</td></tr>
+      <tr><td><strong>Form AJ</strong></td><td>Nhật Bản (ASEAN)</td><td>Bộ Công Thương</td><td><strong>AJCEP</strong></td></tr>
+      <tr><td>Form VJ</td><td>Nhật Bản (VN riêng)</td><td>Bộ Công Thương</td><td>VJEPA</td></tr>
+    </table>
+    <div class="kb-note"><strong>Exam note:</strong> Form AJ = AJCEP = ASEAN–Japan. Form VJ = VJEPA = VN–Japan bilateral. Hai form khác nhau dù cùng đối tác Nhật!</div>
+
+    <h4>Quy trình khai C/O ưu đãi</h4>
+    <div class="kb-rule">
+      Website: <strong>ECOSYS</strong> (ecosys.gov.vn) — do Bộ Công Thương quản lý<br>
+      Thứ tự: Khai tờ khai HQ → Xuất trình chứng từ → <strong>Xin C/O là bước CUỐI CÙNG</strong> trong quy trình xuất khẩu<br>
+      Lợi ích: Giúp IMPORTER (không phải exporter) hưởng thuế suất ưu đãi thấp hơn MFN
+    </div>
+    <div class="kb-warn"><strong>C/O ưu đãi vs C/O thông thường:</strong> C/O ưu đãi (Form D, E, AJ...) dùng để giảm thuế nhập khẩu tại nước đích. C/O Form B chỉ xác nhận xuất xứ theo yêu cầu Buyer, không có ưu đãi thuế.</div>
+  </div>
+</div>
+
+<script>
+const data=[
+  {ch:"CH.1 — Processing Contract",qs:[
+    {n:4,q:"Processors have the obligation to pay ... for quantities of domestically purchased raw materials:",
+     opts:[
+       {l:"A",t:"export duty",c:true,why_right:"Nguyên liệu mua NỘI ĐỊA khi đưa vào thành phẩm gia công rồi xuất khẩu = tương đương xuất khẩu nguyên liệu nội địa → chịu thuế XUẤT KHẨU.",why_wrong:""},
+       {l:"B",t:"import duty and export duty",c:false,why_wrong:"Sai: không phải cả hai. Import duty áp dụng cho hàng nhập khẩu; nguyên liệu mua nội địa không nhập khẩu nên không chịu thuế nhập khẩu."},
+       {l:"C",t:"import duty",c:false,why_wrong:"Sai chiều thuế: import duty là thuế hàng đi VÀO. Nguyên liệu nội địa đã ở trong VN rồi, không phải hàng nhập → không có thuế NK. Phải chịu thuế XUẤT khẩu."},
+       {l:"D",t:"import tariff",c:false,why_wrong:"Import tariff = thuế nhập khẩu, tương đương đáp án C. Sai lý do tương tự."}
+     ]},
+    {n:20,q:"Level of processing: CMPT→FOB/OEM→ODM→OBM. In which level there are not any processor and processee?",
+     opts:[
+       {l:"A",t:"OBM",c:true,why_right:"OBM (Original Brand Name Manufacturing): Processor phát triển thành Real Exporter, tự thiết kế, tự mua nguyên liệu, tự sản xuất dưới thương hiệu riêng → không còn ai thuê gia công, không còn ai đặt gia công.",why_wrong:""},
+       {l:"B",t:"ODM",c:false,why_wrong:"Sai: ODM (Original Design Manufacturing) vẫn có Processor (tự thiết kế sản phẩm) và Processee (đặt hàng, nhận sản phẩm). Processor chỉ tự thiết kế, chưa có thương hiệu riêng."},
+       {l:"C",t:"CMPT",c:false,why_wrong:"Sai: CMPT là mức gia công CƠ BẢN nhất (Cutting-Making-Packing-Trimming). Đây là hình thức gia công thuần túy, cần đầy đủ Processor + Processee."},
+       {l:"D",t:"FOB/OEM",c:false,why_wrong:"Sai: FOB/OEM vẫn có Processee (cho phép Processor tự mua nguyên liệu thay vì được cấp). Vẫn còn mối quan hệ gia công giữa 2 bên."}
+     ]},
+    {n:21,q:"Products on the list of ....must comply with regulations on grant of permits and specialized management:",
+     opts:[
+       {l:"A",t:"exports subject to permits or goods subject to specialized management permits",c:false,why_wrong:"Sai chiều: thù lao nhận dưới dạng thành phẩm là hàng ĐI VÀO Việt Nam = NHẬP KHẨU. Phải áp dụng quy định nhập khẩu, không phải xuất khẩu."},
+       {l:"B",t:"imports subject to permits or goods subject to specialized management permits",c:true,why_right:"Thù lao bằng thành phẩm đưa vào VN = nhập khẩu → phải tuân thủ quy định về imports subject to permits và specialized management.",why_wrong:""},
+       {l:"C",t:"exports subject to permits and goods subject to specialized management permits",c:false,why_wrong:"Sai 2 lần: (1) Sai chiều: phải là imports, không phải exports; (2) Dùng 'and' thay vì 'or' — phải thỏa mãn ít nhất một trong hai điều kiện."},
+       {l:"D",t:"exports and imports subject to permits or goods subject to specialized management permits",c:false,why_wrong:"Quá rộng và sai chiều chính: câu hỏi liên quan đến hàng nhập vào VN, không cần đề cập exports ở đây."}
+     ]},
+    {n:43,q:"Processors have the right to ...(i)... on machinery, equipment, raw materials... temporarily ...(ii)...:",
+     opts:[
+       {l:"A",t:"(i) enjoy exemption from import duty; (ii) exported",c:false,why_wrong:"Sai phần (ii): nguyên liệu và máy móc được NHẬP vào VN tạm thời (temporarily imported), không phải exported. 'Exported' nghĩa là đã ra khỏi VN rồi, không cần miễn thuế nữa."},
+       {l:"B",t:"(i) enjoy exemption from export duty; (ii) exported",c:false,why_wrong:"Sai cả hai: (i) Phải miễn thuế NHẬP khẩu (vì hàng vào VN); (ii) Phải là 'imported' (vào VN), không phải 'exported' (ra khỏi VN)."},
+       {l:"C",t:"(i) enjoy exemption from import duty; (ii) imported",c:true,why_right:"Nguyên liệu và máy móc TẠM NHẬP (temporarily imported) vào VN để gia công → miễn thuế NHẬP KHẨU. Logic: hàng chỉ vào tạm thời, sau đó đi ra cùng thành phẩm → không phải tiêu dùng nội địa → không cần thu thuế NK.",why_wrong:""},
+       {l:"D",t:"(i) enjoy exemption from export duty; (ii) imported",c:false,why_wrong:"Sai phần (i): phải miễn thuế NHẬP KHẨU (không phải xuất khẩu). Hàng TẠM NHẬP → miễn thuế NK. Hàng thành phẩm xuất → miễn thuế XK. Câu này hỏi về nguyên liệu nhập vào."}
+     ]},
+    {n:46,q:"Processors have the right to enjoy exemption from export duty on ....",
+     opts:[
+       {l:"A",t:"domestically purchased raw materials",c:false,why_wrong:"Ngược lại hoàn toàn! Nguyên liệu mua NỘI ĐỊA phải CHỊU thuế xuất khẩu (vì xuất khẩu nguyên liệu nội địa). Đây là câu hỏi về miễn thuế, mà nguyên liệu nội địa không được miễn."},
+       {l:"B",t:"temporarily imported raw materials",c:false,why_wrong:"Nguyên liệu TẠM NHẬP được miễn thuế NHẬP KHẨU (không phải xuất khẩu). Câu hỏi hỏi miễn thuế XUẤT KHẨU — hai khái niệm khác nhau."},
+       {l:"C",t:"machinery, equipment lent by Processee",c:false,why_wrong:"Máy móc thiết bị mượn/thuê được miễn cả thuế NK và XK khi tạm nhập/tạm xuất. Đây là quy định riêng, không phải đặc trưng của 'export duty exemption on processed products'."},
+       {l:"D",t:"processed products",c:true,why_right:"Thành phẩm gia công được miễn thuế XUẤT KHẨU — đây là ưu đãi cốt lõi của hợp đồng gia công xuất khẩu tại VN, khuyến khích ngành gia công phát triển.",why_wrong:""}
+     ]},
+    {n:26,q:"In a processing contract, the term of price should be showed as follows:",
+     opts:[
+       {l:"A",t:"unit price; total amount; Processor & Processee's obligation",c:false,why_wrong:"Điều khoản giá chỉ ghi nghĩa vụ của PROCESSOR, không ghi cả hai bên. Nghĩa vụ Processee thuộc điều khoản khác (materials, shipment...)."},
+       {l:"B",t:"unit price; total amount; Processee's obligation",c:false,why_wrong:"Sai: nghĩa vụ trong điều khoản GIÁ là của PROCESSOR (người thực hiện gia công, ví dụ: CMPT, CMT...), không phải Processee. Processee chỉ trả tiền."},
+       {l:"C",t:"unit price; total amount; Processor's obligation",c:true,why_right:"Điều khoản giá ghi rõ: đơn giá + tổng trị giá + nghĩa vụ của PROCESSOR (ví dụ: 'CMPT' nghĩa là Processor phải cắt, may, đóng gói, hoàn tất). Đây là đặc trưng phân biệt với hợp đồng mua bán.",why_wrong:""},
+       {l:"D",t:"unit price; total amount only",c:false,why_wrong:"Thiếu Processor's obligation — đây là nội dung BẮT BUỘC trong điều khoản giá của HĐ gia công để xác định phạm vi công việc Processor phải thực hiện."}
+     ]},
+    {n:27,q:"Quality inspection will be controlled by ......during production period and Inspection certificate made by him shall be final:",
+     opts:[
+       {l:"A",t:"Processor's representative",c:false,why_wrong:"Processor là người THỰC HIỆN gia công — không thể tự kiểm tra chất lượng chính mình (xung đột lợi ích). Người kiểm tra phải là bên đặt hàng."},
+       {l:"B",t:"Processee & Processor's representatives",c:false,why_wrong:"'His inspection certificate shall be final' → chỉ có MỘT bên cấp giấy. Nếu cả hai bên cùng kiểm tra thì phải ghi 'their' và cơ chế phức tạp hơn."},
+       {l:"C",t:"Processee's representative",c:true,why_right:"Processee là chủ nhãn hiệu, người đặt hàng, có quyền kiểm soát chất lượng trong quá trình sản xuất tại xưởng của Processor. Giấy kiểm định của đại diện Processee là FINAL (cuối cùng).",why_wrong:""},
+       {l:"D",t:"Vinacontrol",c:false,why_wrong:"Vinacontrol là tổ chức giám định ĐỘC LẬP của VN — không phải đại diện của Processee. Trong điều khoản quality, người kiểm tra là đại diện của một bên hợp đồng, không phải bên thứ 3."}
+     ]},
+    {n:12,q:"Processee shall provide Processor with all technical conditions and appropriated documents such as master samples, ...., consumption rates, size specifications and assortments, color cards:",
+     opts:[
+       {l:"A",t:"paper package",c:false,why_wrong:"'Paper package' = bao bì giấy — là nguyên liệu đóng gói, không phải tài liệu kỹ thuật. Không có nghĩa là 'rập giấy' trong tiếng Anh."},
+       {l:"B",t:"paper packing",c:false,why_wrong:"'Paper packing' = đóng gói bằng giấy — liên quan đến bao bì, không phải bản mẫu kỹ thuật cắt may. Không có trong danh sách tài liệu kỹ thuật."},
+       {l:"C",t:"paper production",c:false,why_wrong:"'Paper production' = sản xuất giấy hoặc sản xuất trên giấy — không có nghĩa cụ thể trong ngữ cảnh gia công hàng may mặc."},
+       {l:"D",t:"paper patterns",c:true,why_right:"Paper patterns = rập giấy (bản mẫu giấy để cắt vải theo form chuẩn). Đây là tài liệu kỹ thuật KHÔNG THỂ THIẾU trong gia công may mặc, dùng để đảm bảo kích thước sản phẩm chính xác.",why_wrong:""}
+     ]},
+    {n:47,q:"All technical details as for (i)... sent by Processee to Processor... The (ii)... is a part not separate from this contract:",
+     opts:[
+       {l:"A",t:"(i) counter sample; (ii) counter sample",c:false,why_wrong:"Counter sample = mẫu đối (do PROCESSOR làm ra gửi LẠI cho Processee để xác nhận). Câu hỏi nói 'sent BY Processee TO Processor' → chỉ có Master sample mới đi theo chiều này."},
+       {l:"B",t:"(i) master sample; (ii) master sample",c:true,why_right:"Master sample = mẫu GỐC do Processee gửi cho Processor (original sample). Câu 'sent by Processee to Processor' xác định rõ đây là master sample. Phụ lục mẫu là bộ phận không tách rời của hợp đồng.",why_wrong:""},
+       {l:"C",t:"sample or master sample or counter sample (depends on negotiation)",c:false,why_wrong:"Câu văn đã nói rõ chiều gửi: 'Processee → Processor' = chỉ có Master sample. Không cần 'depends on negotiation' vì đã có thông tin đủ để xác định."},
+       {l:"D",t:"(i) sample; (ii) sample",c:false,why_wrong:"'Sample' quá chung chung, không phân biệt được master hay counter. Trong hợp đồng gia công cần dùng thuật ngữ chính xác để tránh tranh chấp."}
+     ]},
+    {n:16,q:"When the processing contract terminates or expires, contracting parties shall finalize it and send a final accounts in terms of use of .....and exported products to the customs authority:",
+     opts:[
+       {l:"A",t:"consumption rate",c:false,why_wrong:"Consumption rate (định mức tiêu hao) là tỷ lệ/con số dùng để tính toán, không phải đối tượng được quyết toán. Bảng quyết toán nói về việc sử dụng THỰC TẾ nguyên vật liệu, không phải tỷ lệ định mức."},
+       {l:"B",t:"machinery & equipment",c:false,why_wrong:"Máy móc thiết bị có quy trình thanh lý riêng (trả lại/mua lại/thanh lý). Câu hỏi nói 'final accounts in terms of USE of ___' — máy móc không được 'sử dụng hết' như nguyên liệu."},
+       {l:"C",t:"materials",c:true,why_right:"Khi HĐ gia công kết thúc, phải quyết toán với Hải quan về toàn bộ NGUYÊN VẬT LIỆU (đã dùng bao nhiêu, còn bao nhiêu, xử lý thế nào) và thành phẩm đã xuất khẩu.",why_wrong:""}
+     ]},
+    {n:17,q:"The steps to perform the export processing contract are......compared to the sale contract:",
+     opts:[
+       {l:"A",t:"completely different",c:false,why_wrong:"Không đúng: nhiều bước giống nhau như kiểm tra hàng (step 5), thông quan (step 10), giao hàng (step 9), lập chứng từ (step 8), thanh toán (step 11)."},
+       {l:"B",t:"completely similar",c:false,why_wrong:"Không đúng: một số bước KHÁC hoặc KHÔNG CÓ trong HĐ gia công xuất khẩu: không cần xin giấy phép XK (step 1), không cần chuẩn bị hàng (step 3), không cần thuê tàu (step 6), không cần mua bảo hiểm (step 7)."},
+       {l:"C",t:"similar for some steps",c:true,why_right:"Đúng nhất: HĐ gia công xuất khẩu có nhiều bước tương tự HĐ mua bán (thông quan, giao hàng, thanh toán) nhưng không có một số bước (xin phép XK, chuẩn bị hàng, thuê tàu, mua bảo hiểm — vì Processee lo những việc này).",why_wrong:""}
+     ]}
+  ]},
+  {ch:"CH.1 — Complete Equipment Import Contract",qs:[
+    {n:7,q:"If the step of Commissioning is not successful, first of all:",
+     opts:[
+       {l:"A",t:"the Seller should fix problems",c:false,why_wrong:"Không thể mặc định Seller có lỗi. Vấn đề có thể do: Buyer không chuẩn bị nguyên liệu đúng, Buyer không đào tạo công nhân, hoặc vấn đề ngoài tầm kiểm soát. Phải điều tra trước."},
+       {l:"B",t:"Both seller and buyer should re-take this step",c:false,why_wrong:"Làm lại ngay khi chưa biết nguyên nhân = lãng phí thời gian và tiền bạc. Vả lại, nếu không sửa nguyên nhân gốc rễ thì làm lại cũng thất bại."},
+       {l:"C",t:"2 parties should investigate to find out whose mistake?",c:true,why_right:"Nguyên tắc: xác định nguyên nhân → quy trách nhiệm → bên có lỗi sửa chữa. Đây là quy trình chuẩn trong hợp đồng thương mại quốc tế để tránh tranh chấp.",why_wrong:""},
+       {l:"D",t:"Both seller and buyer should fix problems",c:false,why_wrong:"Nếu lỗi chỉ ở một bên thì bên kia không có nghĩa vụ sửa. Bắt cả hai bên cùng sửa là không công bằng và không đúng quy định hợp đồng."}
+     ]},
+    {n:8,q:"Performance test is the .... step when seller & buyer make the commissioning in the buyer factory:",
+     opts:[
+       {l:"A",t:"4th",c:true,why_right:"Thứ tự: (1) Erection/Installation → (2) Test run (No load) → (3) Commissioning (Load test) → (4) Performance test → (5) Acceptance. Performance test là bước thứ 4.",why_wrong:""},
+       {l:"B",t:"second",c:false,why_wrong:"Bước 2 là Test run (No load test) = chạy thử không có nguyên liệu. Performance test là bước 4, cách xa bước 2."},
+       {l:"C",t:"last",c:false,why_wrong:"Bước CUỐI (last) = Acceptance (bước 5) — là bước Seller bàn giao chính thức, Buyer chấp nhận dây chuyền. Performance test là bước 4, trước Acceptance."},
+       {l:"D",t:"first",c:false,why_wrong:"Bước đầu tiên là Erection (lắp đặt dây chuyền). Performance test là bước 4, cách xa bước đầu."}
+     ]},
+    {n:9,q:"In the last period of payment, the Buyer request the Bank guarantee issued by the Seller's bank to avoid:",
+     opts:[
+       {l:"A",t:"in the future the production line will be broken-down but the Seller will ignore to fix the problem",c:true,why_right:"Kỳ thanh toán CUỐI: Buyer đã có dây chuyền, đã thanh toán gần hết. Rủi ro lúc này: Seller 'nhận tiền xong bỏ mặc' khi dây chuyền có sự cố → cần bank guarantee để buộc Seller thực hiện nghĩa vụ bảo hành.",why_wrong:""},
+       {l:"B",t:"the Buyer will refuse to make payment",c:false,why_wrong:"Đây là rủi ro của SELLER (lo Buyer không trả tiền), không phải rủi ro Buyer cần bank guarantee để bảo vệ. Vả lại, bank guarantee được phát hành bởi Seller's bank — bảo vệ BUYER, không phải Seller."},
+       {l:"C",t:"the Buyer will go bankrupt",c:false,why_wrong:"Bankrupt của Buyer là rủi ro của Seller — Seller muốn được trả đủ tiền. Bank guarantee của Seller's bank không bảo vệ điều này."},
+       {l:"D",t:"on the shipment date, the Seller will not deliver production line",c:false,why_wrong:"Đây là rủi ro của kỳ thanh toán ĐẦU TIÊN (down payment), khi Buyer chưa nhận được gì cả. Kỳ CUỐI thì dây chuyền đã được giao và vận hành rồi."}
+     ]},
+    {n:23,q:"In the first period of payment, the Buyer requests the Bank guarantee issued by the Seller's bank to avoid:",
+     opts:[
+       {l:"A",t:"on the shipment date, the Seller will not deliver production line",c:true,why_right:"Kỳ đầu (down payment): Buyer mới trả tiền trước nhưng chưa nhận được gì. Rủi ro lớn nhất: Seller nhận tiền nhưng không giao dây chuyền đúng ngày cam kết. Bank guarantee buộc Seller thực hiện nghĩa vụ giao hàng.",why_wrong:""},
+       {l:"B",t:"in the future the production line will be broken-down",c:false,why_wrong:"Đây là rủi ro của kỳ CUỐI (sau khi đã nhận và vận hành dây chuyền). Ở kỳ đầu, chưa có dây chuyền thì không thể nói đến 'broken-down'."},
+       {l:"C",t:"the Buyer will go bankrupt",c:false,why_wrong:"Bankrupt của Buyer là RỦI RO CỦA SELLER. Câu hỏi hỏi Buyer yêu cầu bank guarantee để bảo vệ cho chính Buyer — không phải lo lắng về bản thân mình bị phá sản."},
+       {l:"D",t:"the Buyer will refuse to make payment",c:false,why_wrong:"Đây là lo lắng của Seller về Buyer, không phải lo lắng của Buyer cần bank guarantee. Bank guarantee của Seller's bank bảo vệ Buyer khỏi Seller không thực hiện nghĩa vụ."}
+     ]},
+    {n:18,q:"In the term of technical support you do not need to mention:",
+     opts:[
+       {l:"A",t:"Buyer's experts expense",c:true,why_right:"Technical support = Seller gửi chuyên gia sang hỗ trợ Buyer. Chi phí chuyên gia SELLER mới cần ghi (Seller's expert expenses). Buyer không gửi chuyên gia nào trong điều khoản này nên không có 'Buyer's experts expense'.",why_wrong:""},
+       {l:"B",t:"Seller's experts expense",c:false,why_wrong:"PHẢI CÓ: Seller gửi chuyên gia sang → chi phí của họ (lương, ăn ở, đi lại) phải được quy định rõ trong hợp đồng."},
+       {l:"C",t:"Expert background",c:false,why_wrong:"PHẢI CÓ: background = trình độ chuyên môn, kinh nghiệm của chuyên gia. Buyer có quyền từ chối chuyên gia không đủ trình độ → phải ghi rõ."},
+       {l:"D",t:"Kinds of support",c:false,why_wrong:"PHẢI CÓ: Loại hỗ trợ kỹ thuật (tư vấn, hướng dẫn vận hành, đào tạo...) là nội dung đầu tiên và quan trọng nhất trong điều khoản technical support."}
+     ]},
+    {n:29,q:"The term of technical support should be showed as follows:",
+     opts:[
+       {l:"A",t:"Kinds; Seller experts: Number, background, duties, working regulation, expenses, replacement",c:true,why_right:"6 nội dung về chuyên gia Seller: (1) Số lượng, (2) Background/trình độ, (3) Nhiệm vụ, (4) Điều kiện làm việc, (5) Chi phí (expenses), (6) Thay thế chuyên gia. Từ khóa: EXPENSES.",why_wrong:""},
+       {l:"B",t:"...experience, replacement",c:false,why_wrong:"'Experience' (kinh nghiệm) đã được bao hàm trong 'background'. Hơn nữa, từ khóa đúng là 'expenses' (chi phí), không phải 'experience'."},
+       {l:"C",t:"...health, duties...",c:false,why_wrong:"'Health' (sức khỏe) không phải nội dung riêng trong điều khoản technical support. Đây không phải thông tin được nêu trong hợp đồng mẫu."},
+       {l:"D",t:"...language, duties...",c:false,why_wrong:"'Language' (ngôn ngữ) là yêu cầu về giao tiếp, không phải thông tin chính trong điều khoản về chuyên gia. Từ khóa đúng là 'expenses' (chi phí)."}
+     ]},
+    {n:30,q:"The term of technical documents should be showed as follows:",
+     opts:[
+       {l:"A",t:"Kinds; Language; Issuers; Seller obligation; Buyer: confidential & owner",c:false,why_wrong:"Sai ở 'Issuers': tài liệu kỹ thuật không cần ghi cơ quan cấp (issuer). Thay vào đó phải là 'Standard' (tiêu chuẩn kỹ thuật mà tài liệu phải tuân theo)."},
+       {l:"B",t:"Kinds; Language; Standard; Seller obligation; Buyer becomes owner (only)",c:false,why_wrong:"Thiếu nghĩa vụ bảo mật của Buyer. Buyer vừa là chủ sở hữu tài liệu VÀ có nghĩa vụ giữ bí mật — hai điều này đi cùng nhau, không thể tách rời."},
+       {l:"C",t:"Kinds; Language; Standard; Seller obligation; Buyer: confidential & owner",c:true,why_right:"5 nội dung đầy đủ: (1) Kinds/loại tài liệu, (2) Language/ngôn ngữ, (3) Standard/tiêu chuẩn kỹ thuật, (4) Seller obligation/đảm bảo tính chính xác, (5) Buyer: giữ bí mật + là chủ sở hữu.",why_wrong:""},
+       {l:"D",t:"Kinds; Language; Number of originals; Seller obligation; Buyer: confidential & owner",c:false,why_wrong:"Sai ở 'Number of originals': đây là thông tin của payment documents, không phải technical documents. Technical documents cần 'Standard' (tiêu chuẩn kỹ thuật)."}
+     ]},
+    {n:31,q:"The terms showing the characteristics in the complete equipment import contract are:",
+     opts:[
+       {l:"A",t:"Definitions; Price; Inspection; Technical support; Erection...; Arbitration",c:false,why_wrong:"Thiếu 'Technical Documents' (Art.8) — đây là điều khoản ĐẶC TRƯNG quan trọng của NK thiết bị toàn bộ. 'Arbitration' là điều khoản chung, có trong mọi loại HĐ, không phải đặc trưng."},
+       {l:"B",t:"Definitions; Inspection; Technical documents; Technical support; Erection...",c:false,why_wrong:"Thiếu 'Price' — Điều khoản giá với breakdown price (production line + installation + commissioning) là đặc trưng phân biệt với HĐ mua bán thông thường."},
+       {l:"C",t:"Price; Inspection; Technical documents; Erection...; Force majeure",c:false,why_wrong:"Thiếu 'Definitions' và 'Technical support'. 'Force majeure' không phải điều khoản đặc trưng (có trong mọi loại HĐ)."},
+       {l:"D",t:"Definitions; Price; Inspection; Technical documents; Technical support; Erection...",c:true,why_right:"Đủ 6 điều khoản đặc trưng: Definitions, Price (breakdown), Inspection, Technical Documents, Technical Support, Art.10 (Erection→Test run→Commissioning→Performance test→Acceptance).",why_wrong:""}
+     ]},
+    {n:34,q:"In the step of load test, .... should be prepared:",
+     opts:[
+       {l:"A",t:"raw material & workers",c:true,why_right:"Load test (Commissioning) = chạy thử CÓ TẢI = chạy dây chuyền với nguyên liệu thực tế. Cần: Raw materials (nguyên liệu để sản xuất thực) + Workers (công nhân vận hành dây chuyền).",why_wrong:""},
+       {l:"B",t:"technical documents",c:false,why_wrong:"Tài liệu kỹ thuật cần cho TẤT CẢ các bước, không phải riêng load test. Đây không phải yêu cầu đặc thù của load test."},
+       {l:"C",t:"raw material only",c:false,why_wrong:"Cần cả CÔNG NHÂN để vận hành dây chuyền. Nguyên liệu một mình không thể tự chạy — cần người điều hành, giám sát quá trình."},
+       {l:"D",t:"workers only",c:false,why_wrong:"Cần cả NGUYÊN LIỆU — đây là điểm khác biệt với test run (no load). Load test phải có nguyên liệu thực để kiểm tra dây chuyền sản xuất thực tế."}
+     ]},
+    {n:39,q:"In the complete equipment import contract, the term of price should be showed as follows:",
+     opts:[
+       {l:"A",t:"Value in figures/words; Breakdown price; Value of production line; Each M&E in Appendix",c:true,why_right:"Breakdown price = Production line value + Installation fee + Commissioning fee. 'Value of production line' là thành phần quan trọng nhất cần ghi rõ. Giá từng máy đơn lẻ ghi ở Appendix.",why_wrong:""},
+       {l:"B",t:"...Fee of services; Each M&E in Appendix",c:false,why_wrong:"'Fee of services' quá chung chung. Các phí dịch vụ (installation, commissioning) đã được tách rõ trong breakdown price, không gọi chung là 'fee of services'."},
+       {l:"C",t:"...Training fee; Each M&E in Appendix",c:false,why_wrong:"Training fee thuộc Art.11 (Training) — điều khoản riêng biệt, không nằm trong điều khoản Price. Lẫn lộn giữa hai điều khoản khác nhau."},
+       {l:"D",t:"Value in figures/words; Breakdown price; Each M&E in Appendix",c:false,why_wrong:"Thiếu 'Value of production line' — đây là thành phần chính trong breakdown price, cần được ghi rõ riêng (không chỉ ghi chung 'breakdown price')."}
+     ]},
+    {n:41,q:"'Commissioning' means run and test to compare the ........performance with contract specs:",
+     opts:[
+       {l:"A",t:"guarantee",c:false,why_wrong:"'Guarantee performance' = mục tiêu của Performance test (bước 4). Commissioning (bước 3) so sánh actual performance — những gì thực sự đạt được khi chạy thực."},
+       {l:"B",t:"manual",c:false,why_wrong:"'Manual performance' = hiệu suất theo tài liệu hướng dẫn vận hành. Đây không phải thuật ngữ dùng trong định nghĩa commissioning."},
+       {l:"C",t:"daily",c:false,why_wrong:"'Daily performance' = hiệu suất hàng ngày — khái niệm này không liên quan đến giai đoạn commissioning (chạy thử, chưa vào sản xuất thường xuyên)."},
+       {l:"D",t:"actual",c:true,why_right:"Commissioning = so sánh ACTUAL performance (hiệu suất thực tế đạt được khi chạy thử có tải) với performance data trong hợp đồng. Đây là định nghĩa chính xác.",why_wrong:""}
+     ]},
+    {n:44,q:"The term of inspection in the complete equipment import contract should be showed as follows:",
+     opts:[
+       {l:"A",t:"Division; Organization; Final place; Delay in inspection",c:false,why_wrong:"'Delay in inspection' không phải nội dung bắt buộc của điều khoản inspection. Vấn đề chậm trễ được xử lý ở điều khoản Penalty (phạt), không phải Inspection."},
+       {l:"B",t:"Division; Organization; Final place; Numbers of inspectors",c:false,why_wrong:"'Numbers of inspectors' không phải nội dung của điều khoản inspection trong HĐ NK thiết bị toàn bộ. Đây có thể nằm trong technical support nhưng không phải inspection."},
+       {l:"C",t:"Division; Organization; Final place; Inspection fee",c:false,why_wrong:"'Inspection fee' không phải nội dung riêng trong điều khoản inspection. Chi phí kiểm tra thường được bao gồm trong phần thanh toán chung."},
+       {l:"D",t:"Division of responsibility; Inspection organization; Final place of inspection",c:true,why_right:"Chỉ CÓ 3 nội dung: (1) Phân chia trách nhiệm kiểm tra giữa Seller và Buyer, (2) Tổ chức kiểm định, (3) Địa điểm kiểm định cuối cùng. Không có delay, không có number of inspectors.",why_wrong:""}
+     ]}
+  ]},
+  {ch:"CH.1 — Technology Transfer & License",qs:[
+    {n:5,q:"Based on Law on Technology transfer 2017, there are 3 kinds of transferred technology:",
+     opts:[
+       {l:"A",t:"Restricted, Improved, encouraged",c:false,why_wrong:"'Improved technology' (công nghệ cải tiến) KHÔNG có trong Luật CGCN 2017. Đây là khái niệm không tồn tại trong phân loại pháp lý của VN."},
+       {l:"B",t:"Restricted, limited, encouraged",c:false,why_wrong:"'Limited technology' KHÔNG có trong Luật 2017. 'Limited' và 'restricted' đều có nghĩa tương tự 'hạn chế' nhưng luật chỉ dùng 'restricted' (hạn chế)."},
+       {l:"C",t:"Innovated, prohibited, encouraged",c:false,why_wrong:"'Innovated technology' (công nghệ đổi mới) KHÔNG có trong Luật 2017. Ba loại chính xác là Encouraged / Restricted / Prohibited."},
+       {l:"D",t:"Restricted, prohibited, encouraged",c:true,why_right:"Luật CGCN 2017 quy định đúng 3 loại: (1) Khuyến khích (Encouraged), (2) Hạn chế (Restricted — phải xin phép), (3) Cấm (Prohibited — không được chuyển giao).",why_wrong:""}
+     ]},
+    {n:6,q:"In the term of patent right, you do not need to show:",
+     opts:[
+       {l:"A",t:"Transferor is the owner",c:false,why_wrong:"PHẢI CÓ trong patent right: Transferor là chủ sở hữu công nghệ (ownership right). Đây là cơ sở pháp lý để Transferor có quyền chuyển giao."},
+       {l:"B",t:"Ownership right",c:false,why_wrong:"PHẢI CÓ: quyền sở hữu (ownership right) là một trong những quyền cần ghi rõ trong điều khoản patent right."},
+       {l:"C",t:"Disposal right",c:false,why_wrong:"PHẢI CÓ: quyền định đoạt (disposal right) — Transferor có quyền quyết định chuyển giao, sử dụng, hay hủy bỏ tài sản trí tuệ."},
+       {l:"D",t:"Transferee right to inform improvements of technology to Transferor",c:true,why_right:"Đây thuộc Art.10 'Improvements and Innovations' — điều khoản RIÊNG về cải tiến và đổi mới. Không thuộc patent right. Patent right chỉ gồm: ownership, disposal right, và giải quyết claim bên thứ 3.",why_wrong:""}
+     ]},
+    {n:10,q:"In technology transfer contract, the calculation of periodic payment should be made by:",
+     opts:[
+       {l:"A",t:"the Transferee",c:true,why_right:"Transferee là người BÁN thành phẩm, biết chính xác doanh thu/lợi nhuận thực tế. Họ tính toán periodic payment rồi thông báo cho Transferor và cho phép kiểm toán độc lập xác minh. Đây theo hợp đồng mẫu ESCAP.",why_wrong:""},
+       {l:"B",t:"the Bank",c:false,why_wrong:"Ngân hàng không có thông tin kinh doanh của Transferee (doanh thu, đơn hàng, giá bán...). Ngân hàng chỉ thực hiện chuyển tiền sau khi đã có số tiền xác định."},
+       {l:"C",t:"the Transferor",c:false,why_wrong:"Transferor ở nước khác, không có trực tiếp dữ liệu về hoạt động kinh doanh của Transferee. Họ chỉ có thể xem xét lại sau khi Transferee thông báo, không phải người tính toán ban đầu."},
+       {l:"D",t:"it depends on 2 parties negotiation",c:false,why_wrong:"Theo hợp đồng mẫu ESCAP (chuẩn quốc tế), đây là nghĩa vụ của TRANSFEREE. Mặc dù thực tế có thể có thương lượng, đáp án chuẩn theo giáo trình là Transferee."}
+     ]},
+    {n:14,q:"In technology transfer contract, in the term of patent right, you do not need to mention:",
+     opts:[
+       {l:"A",t:"the transferor has obligation to solve claim from the 3rd party",c:false,why_wrong:"PHẢI CÓ: Transferor là chủ sở hữu công nghệ → có nghĩa vụ bảo vệ quyền sở hữu trước bên thứ 3. Nếu có tranh chấp patent, Transferor phải đứng ra giải quyết."},
+       {l:"B",t:"the transferor is the technology owner",c:false,why_wrong:"PHẢI CÓ: đây là cơ sở pháp lý đầu tiên của điều khoản patent right — xác định ai là chủ sở hữu hợp pháp của công nghệ."},
+       {l:"C",t:"the transferee supports the transferor to solve claim",c:false,why_wrong:"PHẢI CÓ: Transferee phải hỗ trợ Transferor khi có claim từ bên thứ 3 (cung cấp thông tin, hợp tác điều tra). Đây là nghĩa vụ của Transferee trong điều khoản patent right."},
+       {l:"D",t:"the transferee should keep confidential the technology",c:true,why_right:"Bảo mật (keep confidential) thuộc Art.15 'Confidential Relationship' — điều khoản RIÊNG BIỆT, hoàn toàn tách khỏi patent right. Nhầm lẫn phổ biến!",why_wrong:""}
+     ]},
+    {n:2,q:"Grant sub-license means:",
+     opts:[
+       {l:"A",t:"Licensee can explore the license in specific territory",c:false,why_wrong:"Đây mô tả quyền sử dụng license trong một lãnh thổ nhất định (territorial rights) — không phải sub-licensing. Sub-licensing là CẤPLOẠI mới, không phải sử dụng trong lãnh thổ."},
+       {l:"B",t:"Licensor can explore the license in specific territory",c:false,why_wrong:"Licensor là người CẤP license gốc. Licensor không 'grant sub-license' — sub-license là từ Licensee cấp cho bên thứ 3."},
+       {l:"C",t:"Licensee can grant the obtained license to the 3rd party",c:true,why_right:"Sub-licensing: Licensee A nhận license từ Licensor → A cấp lại (sub-license) cho C → C trở thành Licensee mới, A trở thành Licensor trung gian, nhận royalty từ C rồi trả cho Licensor gốc.",why_wrong:""},
+       {l:"D",t:"Licensor can grant the obtained license to the 3rd party",c:false,why_wrong:"Licensor CẤP license gốc (không phải 'obtained' = nhận từ người khác). Hơn nữa, Sub-license xuất phát từ LICENSEE, không phải từ Licensor."}
+     ]},
+    {n:15,q:"'The annual output of the Contract Products manufactured by the ...... shall in no case exceed 1,000,000 products':",
+     opts:[
+       {l:"A",t:"Transferor",c:false,why_wrong:"Transferor là từ dùng trong Technology Transfer contract. Câu hỏi này về License contract → dùng Licensor/Licensee. Hơn nữa, ai BỊ giới hạn sản lượng là người SẢN XUẤT theo license = Licensee."},
+       {l:"B",t:"Licensor",c:false,why_wrong:"Câu này giới hạn sản lượng của bên SẢN XUẤT dưới license. Licensor là bên SỞ HỮU và cấp phép — họ không bị giới hạn bởi chính hợp đồng license. Trong exclusive license, Licensor mới bị hạn chế nhưng theo cơ chế khác."},
+       {l:"C",t:"Transferee",c:false,why_wrong:"Transferee là từ của Technology Transfer contract, không dùng trong License contract. Câu hỏi về License → phải là Licensee."},
+       {l:"D",t:"Licensee",c:true,why_right:"Licensee là người NHẬN quyền sản xuất dưới license → bị kiểm soát sản lượng. Đây là điều khoản hạn chế đặc trưng của License contract: giới hạn Licensee không được sản xuất quá mức nhất định.",why_wrong:""}
+     ]},
+    {n:32,q:"In the term of Intellectual Property Right, the obligation to maintain the object license validity belongs to:",
+     opts:[
+       {l:"A",t:"Transferor",c:false,why_wrong:"Transferor là từ của Technology Transfer contract, không phải License contract. Trong License, người tương đương là Licensor."},
+       {l:"B",t:"Licensor",c:true,why_right:"Licensor là chủ sở hữu patent. Họ phải nộp phí patent (maintenance fee) định kỳ cho cơ quan sở hữu trí tuệ để duy trì hiệu lực bằng sáng chế. Nếu Licensor không duy trì, patent hết hiệu lực → license cũng mất giá trị.",why_wrong:""},
+       {l:"C",t:"Transferee",c:false,why_wrong:"Transferee là từ của Technology Transfer. Trong License context, người nhận license là Licensee — nhưng Licensee cũng không có nghĩa vụ này (họ chỉ sử dụng patent của Licensor)."},
+       {l:"D",t:"Licensee",c:false,why_wrong:"Licensee chỉ được QUYỀN SỬ DỤNG patent, không phải chủ sở hữu. Nghĩa vụ duy trì bằng sáng chế thuộc về người sở hữu = Licensor."}
+     ]}
+  ]},
+  {ch:"CH.2 — Documentation & Payment",qs:[
+    {n:3,q:"Under payment method of Documentary credit in a processing contract, the following information should be showed:",
+     opts:[
+       {l:"A",t:"...L/C opening date, documents presentation date, L/C expiry date",c:false,why_wrong:"'Documents presentation date' là mốc thời gian trong TIMELINE của L/C, không phải thông tin ghi trong điều khoản thanh toán của hợp đồng gia công. Điều khoản này cần ghi nội dung L/C, không phải lịch trình."},
+       {l:"B",t:"...L/C opening date, payment documents, L/C expiry date",c:true,why_right:"5 thông tin: Issuing bank name + Advising bank name + L/C opening date + Payment documents (chứng từ để thanh toán) + L/C expiry date. 'Payment documents' là thông tin quan trọng nhất cần ghi rõ.",why_wrong:""},
+       {l:"C",t:"...L/C opening date, % of L/C deposit, documents presentation date, L/C expiry date",c:false,why_wrong:"'% of L/C deposit' (tỷ lệ ký quỹ) và 'documents presentation date' không phải nội dung của điều khoản thanh toán trong HĐ gia công. % ký quỹ là điều kiện của ngân hàng, không ghi trong HĐ thương mại."},
+       {l:"D",t:"...L/C amendment date, L/C expiry date",c:false,why_wrong:"'L/C amendment date' (ngày sửa đổi L/C) không phải thông tin có sẵn khi ký HĐ (vì không biết có cần sửa đổi không). Thiếu 'payment documents' — thông tin quan trọng nhất."}
+     ]},
+    {n:25,q:"Which payment method is risky for the Processor?",
+     opts:[
+       {l:"A",t:"CAD",c:false,why_wrong:"CAD (Cash Against Documents) rủi ro cho BUYER: Buyer phải ký quỹ/đặt cọc trước khi thấy hàng thực. Processor/Seller an toàn vì tiền đã được đảm bảo."},
+       {l:"B",t:"T/T, D/P, D/A, D/TC",c:true,why_right:"T/T phụ thuộc thiện chí Buyer (không có cam kết NH). D/P: Buyer có thể từ chối nhận chứng từ. D/A: Buyer nhận hàng rồi mới trả (rủi ro cao nhất). D/TC: tương tự D/A. Tất cả đều không có bảo đảm ngân hàng.",why_wrong:""},
+       {l:"C",t:"Documentary credit (L/C)",c:false,why_wrong:"L/C là phương thức AN TOÀN NHẤT cho Seller/Processor vì có CAM KẾT của ngân hàng phát hành. Nếu bộ chứng từ hợp lệ, ngân hàng PHẢI thanh toán bất kể Buyer có muốn hay không."}
+     ]},
+    {n:33,q:"In the term of payment, payment documents should be showed with the following inf:",
+     opts:[
+       {l:"A",t:"Kinds, exchange rate, numbers of originals, numbers of copies",c:false,why_wrong:"'Exchange rate' (tỷ giá hối đoái) thuộc điều khoản Currency/tiền tệ, không phải payment documents. Payment documents không cần ghi tỷ giá."},
+       {l:"B",t:"Kinds, issuers, bank information, numbers of originals, numbers of copies",c:false,why_wrong:"'Bank information' thuộc điều khoản T/T (ghi số tài khoản, tên ngân hàng). Payment documents không cần thông tin ngân hàng."},
+       {l:"C",t:"Kinds, issuers, numbers of originals, numbers of copies",c:true,why_right:"4 thông tin bắt buộc của payment documents: (1) Loại chứng từ, (2) Cơ quan cấp, (3) Số bản gốc, (4) Số bản sao. Đơn giản nhưng dễ nhầm với payment method.",why_wrong:""},
+       {l:"D",t:"Kinds, issuers, payment method, numbers of originals, numbers of copies",c:false,why_wrong:"'Payment method' (phương thức thanh toán: T/T, L/C...) là điều khoản RIÊNG trong payment term, không phải thông tin trong payment documents."}
+     ]},
+    {n:42,q:"Under payment method of T/T in a processing contract, the following information should be showed:",
+     opts:[
+       {l:"A",t:"Processor's bank name, bank account; time of payment; payment documents",c:true,why_right:"3 nội dung T/T: (1) Tên ngân hàng + số TK của Processor, (2) Thời điểm thanh toán (advance? deferred? at sight?), (3) Chứng từ thanh toán. Đây theo notes trang 6.",why_wrong:""},
+       {l:"B",t:"Processor's bank name, bank account only",c:false,why_wrong:"Thiếu 2 nội dung quan trọng: time of payment (khi nào trả?) và payment documents (cần chứng từ gì để thanh toán?). Chỉ ghi tên NH + số TK là chưa đủ để thực hiện thanh toán."},
+       {l:"C",t:"...Payment documents; Expiry date",c:false,why_wrong:"T/T KHÔNG có 'expiry date'. Expiry date là đặc trưng của L/C (vì L/C có thời hạn hiệu lực). T/T là chuyển tiền trực tiếp, không cần expiry date."},
+       {l:"D",t:"...Expiry date; documents presentation date",c:false,why_wrong:"Cả 'expiry date' và 'documents presentation date' đều là khái niệm của L/C, KHÔNG phải T/T. T/T đơn giản hơn, chỉ cần: tên NH/TK + thời điểm TT + chứng từ."}
+     ]},
+    {n:38,q:"The order of timelines under payment method of Documentary credit is:",
+     opts:[
+       {l:"A",t:"Contract signing; L/C opening; documents presentation; shipment; L/C expiry",c:false,why_wrong:"Sai thứ tự: documents presentation PHẢI SAU shipment vì cần có B/L (vận đơn — chỉ có sau khi giao hàng lên tàu) để lập bộ chứng từ. Không thể xuất trình chứng từ trước khi giao hàng."},
+       {l:"B",t:"Contract signing; L/C opening; shipment; documents presentation; L/C expiry",c:true,why_right:"Logic đúng: Ký HĐ → Buyer mở L/C → Seller giao hàng (có B/L) → Seller lập và xuất trình bộ chứng từ → L/C hết hạn. Shipment phải trước documents presentation.",why_wrong:""},
+       {l:"C",t:"L/C opening; contract signing; shipment; documents presentation; L/C expiry",c:false,why_wrong:"Không thể mở L/C trước khi ký hợp đồng — L/C được mở DỰA TRÊN hợp đồng (số HĐ, điều kiện HĐ là cơ sở để ngân hàng phát hành L/C)."},
+       {l:"D",t:"Contract signing; shipment; L/C opening; documents presentation; L/C expiry",c:false,why_wrong:"Không thể giao hàng trước khi mở L/C — Seller sẽ không chịu giao hàng nếu chưa có đảm bảo thanh toán từ ngân hàng Buyer. L/C phải được mở trước khi Seller giao hàng."}
+     ]},
+    {n:40,q:"VGM is made by:",
+     opts:[
+       {l:"A",t:"the consignee",c:false,why_wrong:"Consignee là người NHẬN hàng ở cảng đến (nhập khẩu). VGM là khai báo trước khi lên tàu ở cảng xuất — Consignee không có mặt và không có thông tin thực tế về container."},
+       {l:"B",t:"the carrier",c:false,why_wrong:"Carrier (hãng tàu) YÊU CẦU VGM từ Shipper trước khi nhận container lên tàu, nhưng không phải là người khai VGM. Carrier chỉ nhận và kiểm tra VGM."},
+       {l:"C",t:"the shipper in case goods are loaded onto container(s)",c:true,why_right:"VGM (Verified Gross Mass) theo SOLAS 2016: CHỈ áp dụng cho hàng containerized. Người khai là SHIPPER (người gửi hàng). Không áp dụng cho hàng bulk hay break-bulk.",why_wrong:""},
+       {l:"D",t:"the shipper for all cases",c:false,why_wrong:"'For all cases' là sai: VGM CHỈ áp dụng khi hàng đóng vào container. Hàng bulk, hàng rời, hàng lỏng... không cần VGM vì trọng lượng được xác định bằng cách khác (draft survey, flow meter...)."}
+     ]},
+    {n:37,q:"The biggest benefit of preferential C/O form is help the...(i).. to enjoy.(ii)..",
+     opts:[
+       {l:"A",t:"(i) importer / (ii) preferential tariff rates",c:true,why_right:"C/O ưu đãi giúp IMPORTER (nhà nhập khẩu) được hưởng thuế suất PREFERENTIAL (ưu đãi) thấp hơn thuế MFN thông thường. Exporter hưởng lợi gián tiếp qua lợi thế cạnh tranh giá.",why_wrong:""},
+       {l:"B",t:"(i) exporter / (ii) special preferential tariff rates",c:false,why_wrong:"Sai cả hai: (1) Exporter không trực tiếp hưởng ưu đãi thuế quan; (2) 'Special preferential tariff' là khái niệm khác (thuế suất đặc biệt ưu đãi trong quan hệ đặc biệt), không phải tên gọi của FTA preferences."},
+       {l:"C",t:"(i) importer / (ii) special preferential tariff rates",c:false,why_wrong:"'Importer' đúng nhưng 'special preferential tariff rates' không đúng tên. Tên chính xác là 'preferential tariff rates' (thuế suất ưu đãi theo FTA)."},
+       {l:"D",t:"(i) exporter / (ii) preferential tariff rates",c:false,why_wrong:"Exporter không trực tiếp hưởng thuế quan — họ hưởng lợi gián tiếp qua cạnh tranh giá tốt hơn. Người trực tiếp nộp thuế nhập khẩu và hưởng ưu đãi là IMPORTER."}
+     ]},
+    {n:11,q:"Quality, Quantity, Weight certificates are issued by:",
+     opts:[
+       {l:"A",t:"Seller or Manufacturer or Independent inspection company",c:true,why_right:"3 bên đều có thể cấp tùy thỏa thuận: (1) Seller/Manufacturer tự cấp (tự chứng nhận), (2) Công ty giám định độc lập (Vinacontrol, SGS, OMIC... do 2 bên thỏa thuận). Không giới hạn chỉ một bên.",why_wrong:""},
+       {l:"B",t:"Seller only",c:false,why_wrong:"Không đúng: Buyer có thể yêu cầu công ty giám định độc lập cấp để đảm bảo tính khách quan. Nhiều L/C yêu cầu phải có chứng từ từ independent inspection company."},
+       {l:"C",t:"Buyer or Independent inspection company",c:false,why_wrong:"Buyer thường không cấp cert về hàng của Seller (xung đột lợi ích ngược chiều). Seller/Manufacturer mới là bên có thể tự cấp."},
+       {l:"D",t:"Independent inspection company only",c:false,why_wrong:"Không bắt buộc phải có bên thứ 3: Seller/Manufacturer hoàn toàn có thể tự cấp cert nếu 2 bên đồng ý. Independent inspection chỉ bắt buộc khi L/C hoặc HĐ yêu cầu."}
+     ]}
+  ]},
+  {ch:"CH.2 — Phytosanitary, Health Cert & C/O",qs:[
+    {n:1,q:"In Vietnam, phytosanitary certificate is issued by:",
+     opts:[
+       {l:"A",t:"Plant Protection Department",c:true,why_right:"Cục Bảo vệ Thực vật (Plant Protection Department) — trực thuộc Bộ NN&PTNT — là cơ quan DUY NHẤT có thẩm quyền cấp Phytosanitary Certificate tại VN theo Pháp lệnh Bảo vệ và Kiểm dịch Thực vật.",why_wrong:""},
+       {l:"B",t:"Plant Quarantine Department",c:false,why_wrong:"Không có cơ quan tên 'Plant Quarantine Department' trong hệ thống hành chính VN. Đây là tên bịa — cơ quan đúng là Cục Bảo vệ Thực vật (Plant Protection Department)."},
+       {l:"C",t:"Agricultural product quarantine Department",c:false,why_wrong:"Không có cơ quan tên này. 'Agricultural product quarantine' mô tả chức năng kiểm dịch nông sản nhưng không phải tên chính xác của cơ quan cấp Phyto cert."},
+       {l:"D",t:"Ministry of Agriculture & Rural Development",c:false,why_wrong:"Bộ NN&PTNT là BỘ CHỦ QUẢN của Cục Bảo vệ Thực vật, không trực tiếp cấp Phyto cert. Cơ quan cấp là đơn vị thuộc Bộ, không phải Bộ."}
+     ]},
+    {n:13,q:"In Vietnam, the Health cert. is under the management of..... which depends on the kind of products:",
+     opts:[
+       {l:"A",t:"Ministry of Agriculture & rural development, Ministry of Health",c:false,why_wrong:"Thiếu Bộ Công Thương (Ministry of Industry and Trade). Một số loại thực phẩm (đồ uống, gia vị...) do BCT quản lý. Chỉ 2 Bộ là không đủ."},
+       {l:"B",t:"Ministry of Industry and Trade, Ministry of Agriculture & rural development, Ministry of Health",c:true,why_right:"3 Bộ quản lý tùy loại: BCT (đồ uống, thực phẩm công nghiệp), Bộ NN&PTNT (nông sản, thủy sản), Bộ Y Tế (dược phẩm, thực phẩm chức năng).",why_wrong:""},
+       {l:"C",t:"Ministry of Industry and Trade, Ministry of Agriculture & rural development",c:false,why_wrong:"Thiếu Bộ Y Tế — cơ quan quản lý dược phẩm, thực phẩm chức năng, và nhiều loại thực phẩm chế biến. Không thể bỏ qua Bộ Y Tế trong quản lý Health cert."},
+       {l:"D",t:"Ministry of Agriculture & rural development, Ministry of Health, Ministry of food protection",c:false,why_wrong:"Không có 'Ministry of food protection' trong hệ thống hành chính VN. Đây là cơ quan không tồn tại. Đồng thời thiếu Bộ Công Thương."}
+     ]},
+    {n:19,q:"In Vietnam, the issuer of health cert. for animal and animal products is:",
+     opts:[
+       {l:"A",t:"Department of animal and related animal health",c:false,why_wrong:"Tên không chính xác: 'related animal health' không phải thuật ngữ chuẩn. Tên đúng là 'Department of Animal Health' (Cục Thú y), không có từ 'related'."},
+       {l:"B",t:"Department of animal health",c:true,why_right:"Cục Thú y (Department of Animal Health) — thuộc Bộ NN&PTNT — là cơ quan có thẩm quyền cấp Veterinary Certificate/Health Certificate cho động vật và sản phẩm động vật xuất khẩu.",why_wrong:""},
+       {l:"C",t:"Department of animal and animal products health",c:false,why_wrong:"Tên ghép không chính xác. Tên chuẩn là 'Department of Animal Health', không phải 'animal and animal products health'."},
+       {l:"D",t:"Ministry of Agriculture & Rural Development",c:false,why_wrong:"Bộ NN&PTNT là Bộ chủ quản. Cơ quan trực tiếp cấp là Cục Thú y (thuộc Bộ). Bộ không trực tiếp cấp từng giấy chứng nhận."}
+     ]},
+    {n:35,q:"Procedure to obtain Phytosanitary certificate for export cargo (not on quarantine list) can be made:",
+     opts:[
+       {l:"A",t:"at the same time to declare the customs or after declare the customs",c:false,why_wrong:"'Or after' là sai: không có quy định xin Phyto SAU KHI đã khai hải quan cho hàng không trong danh mục. Chỉ có 'at the same time' là đúng."},
+       {l:"B",t:"after shipment date",c:false,why_wrong:"Hoàn toàn sai: không thể xin Phyto sau khi hàng đã giao lên tàu. Phyto cần có TRƯỚC hoặc CÙNG LÚC khai hải quan để thông quan."},
+       {l:"C",t:"after declare the customs",c:false,why_wrong:"Xin Phyto SAU KHI khai hải quan = đã thông quan rồi. Hải quan cần Phyto cert để kiểm tra TRƯỚC khi cho thông quan, không phải sau."},
+       {l:"D",t:"at the same time to declare the customs",c:true,why_right:"Hàng xuất KHÔNG trong danh mục bắt buộc kiểm dịch: xin Phyto cert CÙNG LÚC với khai tờ khai hải quan. Không cần phải xin trước. Hàng trong danh mục bắt buộc: phải xin TRƯỚC KHI GIAO HÀNG LÊN TÀU.",why_wrong:""}
+     ]},
+    {n:45,q:"Procedure to obtain Phytosanitary certificate for import cargo can be made:",
+     opts:[
+       {l:"A",t:"on the date of import customs clearance",c:false,why_wrong:"'On the date' = cùng ngày thông quan. Nhưng Phyto nhập phải nộp cho hải quan TRƯỚC KHI thông quan. Nộp cùng ngày thông quan là quá muộn — hải quan cần kiểm tra Phyto trước khi quyết định cho thông quan."},
+       {l:"B",t:"after taking delivery of goods",c:false,why_wrong:"Hoàn toàn sai: nếu đã nhận hàng thì hải quan đã thông quan rồi. Xin Phyto sau đó là vô nghĩa."},
+       {l:"C",t:"before import customs clearance",c:true,why_right:"Hàng NHẬP: phải có Phyto cert TRƯỚC KHI làm thủ tục thông quan nhập khẩu. Hải quan sẽ kiểm tra Phyto cert cùng với tờ khai hải quan. Ngược với hàng xuất (có thể cùng lúc khai HQ).",why_wrong:""},
+       {l:"D",t:"after import customs clearance",c:false,why_wrong:"Sau khi thông quan = hàng đã vào VN rồi. Xin Phyto sau đó không có ý nghĩa kiểm dịch. Mục đích Phyto nhập là NGĂN hàng bệnh vào VN — phải kiểm tra TRƯỚC khi cho vào."}
+     ]},
+    {n:36,q:"The website to declare to obtain preferential C/O is:",
+     opts:[
+       {l:"A",t:"Ecosys",c:true,why_right:"ECOSYS (ecosys.gov.vn) là hệ thống điện tử của Bộ Công Thương để khai và xin cấp C/O ưu đãi. Được quy định bởi Nghị định 31/2018/NĐ-CP.",why_wrong:""},
+       {l:"B",t:"vnsw",c:false,why_wrong:"NSW (vnsw.gov.vn) = Vietnam National Single Window — là cổng thông tin hải quan điện tử để khai tờ khai hải quan và các thủ tục liên quan. KHÔNG dùng để xin C/O ưu đãi."},
+       {l:"C",t:"covcci",c:false,why_wrong:"Không phải website thực tế. VCCI cấp C/O form B nhưng thông qua hệ thống riêng (ecosys.gov.vn cũng có phần VCCI), không phải 'covcci'."},
+       {l:"D",t:"assw",c:false,why_wrong:"Không tồn tại website tên 'assw' trong hệ thống thương mại VN."}
+     ]},
+    {n:24,q:"To declare origin criteria in C/O, among RVC, CC, CTH, CTSH which one is more complicated?",
+     opts:[
+       {l:"A",t:"RVC",c:true,why_right:"RVC (Regional Value Content): phải thu thập chi phí nguyên liệu từng nguồn, tính giá FOB, áp công thức [(FOB - non-originating materials) / FOB] × 100 ≥ X%. Cần dữ liệu kế toán chi tiết, phức tạp nhất.",why_wrong:""},
+       {l:"B",t:"CC",c:false,why_wrong:"CC (Change of Chapter) = đơn giản nhất: chỉ cần kiểm tra mã HS 2 số đầu của nguyên liệu nhập khẩu có khác với mã HS 2 số đầu của thành phẩm không. Không cần tính toán số liệu."},
+       {l:"C",t:"CTSH",c:false,why_wrong:"CTSH (Change of Tariff Sub-Heading) = kiểm tra thay đổi mã HS 6 số đầu. Cần tra bảng HS nhưng không cần tính toán tài chính. Phức tạp hơn CC/CTH nhưng vẫn đơn giản hơn RVC."},
+       {l:"D",t:"CTH",c:false,why_wrong:"CTH (Change of Tariff Heading) = kiểm tra thay đổi mã HS 4 số đầu. Đơn giản hơn RVC vì chỉ cần tra bảng phân loại hàng hóa, không cần tính toán tài chính."}
+     ]},
+    {n:22,q:"In Vietnam, export/import license is issued by:",
+     opts:[
+       {l:"A",t:"the Ministry of industry and trade",c:false,why_wrong:"BCT chỉ quản lý một số mặt hàng cụ thể (ví dụ: hóa chất, phế liệu, hàng dệt may...). Hàng hóa thuộc Bộ khác (dược phẩm → Bộ Y Tế, nông sản → Bộ NN&PTNT) thì BCT không cấp."},
+       {l:"B",t:"customs office",c:false,why_wrong:"Hải quan KIỂM TRA giấy phép XNK khi làm thủ tục thông quan, nhưng không CẤPP giấy phép. Hai chức năng này tách biệt nhau."},
+       {l:"C",t:"the government",c:false,why_wrong:"Quá chung chung. Chính phủ ban hành chính sách nhưng không trực tiếp cấp từng giấy phép XNK cụ thể."},
+       {l:"D",t:"specific goods specialized management ministry",c:true,why_right:"Mỗi loại hàng do Bộ chuyên ngành quản lý cấp: dược phẩm → Bộ Y Tế; nông sản → Bộ NN&PTNT; vũ khí → Bộ Quốc phòng; hàng công nghiệp → BCT... Không có một cơ quan duy nhất cấp tất cả.",why_wrong:""}
+     ]},
+    {n:28,q:"PQS is a software to declare the procedure for:",
+     opts:[
+       {l:"A",t:"import animal quarantine",c:false,why_wrong:"PQS dành cho kiểm dịch THỰC VẬT (plant quarantine), không phải động vật. Kiểm dịch động vật dùng phần mềm khác của Cục Thú y."},
+       {l:"B",t:"food safety and hygiene",c:false,why_wrong:"Vệ sinh an toàn thực phẩm do Bộ Y Tế/BCT quản lý qua hệ thống khác. PQS là phần mềm chuyên dành cho kiểm dịch thực vật."},
+       {l:"C",t:"export and import plant quarantine",c:true,why_right:"PQS (Plant Quarantine Software) = phần mềm kiểm dịch thực vật CẢ xuất lẫn nhập khẩu, do Cục Bảo vệ Thực vật quản lý, truy cập tại www.kdtv2.com.",why_wrong:""},
+       {l:"D",t:"export animal quarantine",c:false,why_wrong:"Sai 2 lần: (1) PQS dành cho thực vật, không phải động vật; (2) PQS áp dụng cho cả xuất và nhập, không chỉ export."}
+     ]}
+  ]}
+];
+
+let qOpen=false,kOpen=false;
+function toggleAll(type){
+  if(type==='q'){
+    qOpen=!qOpen;
+    document.querySelectorAll('.card-body').forEach(b=>b.classList.toggle('open',qOpen));
+    document.querySelectorAll('.toggle').forEach(t=>t.textContent=qOpen?'−':'+');
+    document.getElementById('btn-q').textContent=qOpen?'Thu gọn câu hỏi':'Mở tất cả câu hỏi';
+  } else {
+    kOpen=!kOpen;
+    document.querySelectorAll('[data-kb] .kb-body').forEach(b=>b.classList.toggle('open',kOpen));
+    document.querySelectorAll('[data-kb] .kb-head span').forEach(s=>s.textContent=kOpen?'−':'+');
+    document.getElementById('btn-k').textContent=kOpen?'Thu gọn kiến thức':'Mở tất cả kiến thức';
+  }
+}
+function toggleCard(el){
+  const body=el.nextElementSibling;
+  const icon=el.querySelector('.toggle');
+  body.classList.toggle('open');
+  icon.textContent=body.classList.contains('open')?'−':'+';
+}
+function toggleKB(el){
+  const body=el.nextElementSibling;
+  const icon=el.querySelector('span');
+  body.classList.toggle('open');
+  icon.textContent=body.classList.contains('open')?'−':'+';
+}
+
+window.onload=function(){
+  const main=document.getElementById('main');
+  data.forEach(ch=>{
+    const lbl=document.createElement('div');
+    lbl.className='ch-label';
+    lbl.textContent=ch.ch;
+    main.appendChild(lbl);
+    const qs=document.createElement('div');
+    qs.className='qs';
+    ch.qs.forEach(q=>{
+      const card=document.createElement('div');
+      card.className='card';
+      const optsHtml=q.opts.map(o=>{
+        const cls=o.c?'correct':'wrong';
+        const detail=o.c?
+          `<div class="why-correct">✓ ${o.why_right}</div>`:
+          `<div class="why-wrong">✗ ${o.why_wrong}</div>`;
+        return `<div class="opt ${cls}">
+          <div class="opt-label">${o.l}</div>
+          <div class="opt-content">
+            <div class="opt-text">${o.t}</div>
+            ${detail}
+          </div>
+        </div>`;
+      }).join('');
+      card.innerHTML=`
+        <div class="card-head" onclick="toggleCard(this)">
+          <div class="qnum">${q.n}</div>
+          <div class="qtxt">${q.q}</div>
+          <div class="ans-badge">→ ${q.opts.find(o=>o.c).l}</div>
+          <div class="toggle">+</div>
+        </div>
+        <div class="card-body">
+          <div class="opts">${optsHtml}</div>
+        </div>`;
+      qs.appendChild(card);
+    });
+    main.appendChild(qs);
+  });
+};
+</script>
+<footer>Export-Import Management — Final Exam Review | Phân tích chuyên sâu 47 câu TN</footer>
+</body>
+</html>
